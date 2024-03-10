@@ -1,0 +1,275 @@
+type Query {
+  act_on(acct_id: String!): act_on_query
+}
+
+type Mutation {
+  act_on(acct_id: String!): act_on_mutation
+}
+
+type act_on_mutation {
+  aws_upload(input: act_on_aws_upload_input!): act_on_result
+  contact_create(
+    input: act_on_contact_create_input!
+  ): act_on_contact_upsert_result
+  contact_update(
+    input: act_on_contact_update_input!
+  ): act_on_contact_upsert_result
+
+  # Creates a new list in your account.
+  lists_create(input: act_on_lists_create_input!): act_on_lists_create_result
+  subscription_categories_email_update(
+    input: act_on_subscription_categories_email_update_input!
+  ): act_on_result
+  test_clear_data: act_on_result
+  test_reset_data: act_on_result
+}
+
+input act_on_aws_upload_input {
+  # The name of the file including location.
+  name: act_on_aws_file_name!
+
+  # Base 64 encoded file contents.
+  data: String!
+}
+
+type act_on_query {
+  contact(input: act_on_contact_input!): [JSONObject]
+  contact_report_activity(
+    input: act_on_contact_report_activity_input!
+  ): JSONObject
+  contact_report_scores(
+    input: act_on_contact_report_scores_input!
+  ): [JSONObject]
+  contact_report_segments(
+    input: act_on_contact_report_segments_input!
+  ): [JSONObject]
+  subscription_categories: act_on_subscription_categories_result
+  subscription_categories_email(
+    filter: act_on_subscription_categories_email_filter!
+  ): act_on_subscription_categories_email_result
+}
+
+input act_on_contact_input {
+  email: EmailAddress
+  id: String
+  external_id: String
+  object_type: String
+}
+
+enum act_on_contact_create_method {
+  email
+  external_id
+}
+
+input act_on_contact_create_input {
+  email: EmailAddress!
+  create_method: act_on_contact_create_method! = email
+  external_id: String
+  object_type: String
+  first_name: String
+  middle_name: String
+  last_name: String
+  company: String
+  title: String
+  department: String
+  business_street: String
+  business_city: String
+  business_state: String
+  business_zip: String
+  business_country: String
+  business_phone: String
+  business_fax: String
+  business_website: String
+  personal_street: String
+  personal_city: String
+  personal_state: String
+  personal_zip: String
+  personal_country: String
+  personal_website: String
+  picture: String
+  timezone: String
+  home_phone: String
+  mobile_phone: String
+  date_of_birth: Date
+  custom_fields: act_on_contact_custom_fields
+}
+
+input act_on_contact_update_input {
+  email: EmailAddress
+  id: String
+  upsert_policy: String
+  external_id: String
+  object_type: String
+  first_name: String
+  middle_name: String
+  last_name: String
+  company: String
+  title: String
+  department: String
+  business_street: String
+  business_city: String
+  business_state: String
+  business_zip: String
+  business_country: String
+  business_phone: String
+  business_fax: String
+  business_website: String
+  personal_street: String
+  personal_city: String
+  personal_state: String
+  personal_zip: String
+  personal_country: String
+  personal_website: String
+  picture: String
+  timezone: String
+  home_phone: String
+  mobile_phone: String
+  date_of_birth: Date
+  custom_fields: act_on_contact_custom_fields
+}
+
+type act_on_contact_upsert_result {
+  success: Boolean
+  message: String
+  doc: JSONObject
+}
+
+input act_on_contact_report_activity_input {
+  email: EmailAddress
+  id: String
+  external_id: String
+  object_type: String
+  months_of_past_data: NonNegativeInt
+}
+
+input act_on_contact_report_scores_input {
+  email: EmailAddress
+  id: String
+  external_id: String
+  object_type: String
+}
+
+input act_on_contact_report_segments_input {
+  email: EmailAddress
+  id: String
+  external_id: String
+  object_type: String
+}
+
+input act_on_checkPerm_bindings {
+  node_types: [String]
+  perms: [String]
+}
+
+enum act_on_lists_quote_character {
+  none
+  single_quote
+  double_quote
+}
+
+enum act_on_lists_field_separator {
+  comma
+  semi
+}
+
+input act_on_lists_create_input {
+  # Name of the list.
+  name: String!
+
+  # A string containing the list of contacts. Typically the contents of a csv file.
+  file: String!
+
+  # The field quote character.
+  quote_character: act_on_lists_quote_character! = double_quote
+
+  # The field separator character.
+  field_separator: act_on_lists_field_separator! = comma
+
+  # Whether to ignore the first row containing headings.
+  headings: Boolean! = false
+
+  # The folder name in which to store the list.
+  folder_name: String
+
+  # The specification of the structure of the list being created.
+  upload_specs: [act_on_lists_upload_specs_column!]!
+}
+
+input act_on_lists_upload_specs_column {
+  # Optional apart from EMAIL - This specifies the EMAIL system usage column and will set system field mappings for the other system fields on creation of a new list. See https://developer.act-on.com/reference/uploadspecs-overview for list of system fields.
+  column_type: String
+
+  # Display name for column heading.
+  column_heading: String!
+
+  # Column index within the uploaded file (zero based).
+  column_index: NonNegativeInt!
+
+  # Whether to ignore the column in the uploaded file.
+  ignore_column: Boolean = false
+}
+
+type act_on_lists_create_result {
+  success: Boolean
+  message: String
+  job_id: String
+}
+
+type act_on_result {
+  success: Boolean
+  message: String
+}
+
+# AWS file names must start with the path if not root followed by the filename. The path folders The name can only contain Uppercase Letters (A-Z), Lowercase Letters (a-z), Numbers (0-9), Periods (.), Dashes (-), Tildes (~), Underscores (_), Equal signs (=), and Colons (:). Paths are separated by a Forward Slash ( / ). Filenames can only contain Uppercase Letters (A-Z), Lowercase Letters (a-z), Numbers (0-9), Exclamations (!), Periods ( . ), Dashes ( - ), Underscores ( _ ), Asterisks (*), Quotes ('), Open and Close Parentheses (()).
+scalar act_on_aws_file_name
+
+# Contact custom fields is an object containing property keys and values. Each key should be assignable to an integer corresponding to the columnIndex of the field in the schema. All values should be strings convertible to the column type of the field defined by the schema.
+scalar act_on_contact_custom_fields
+
+# A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+scalar Date
+
+# A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address.
+scalar EmailAddress
+
+# The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+scalar JSONObject
+
+# Integers that will have a value of 0 or more.
+scalar NonNegativeInt
+
+type act_on_subscription_category {
+  id: String
+  acct_id: String
+  name: String
+  description: String
+  header_id: String
+  header_name: String
+}
+
+type act_on_subscription_categories_result {
+  count: Int
+  docs: [act_on_subscription_category]
+}
+
+input act_on_subscription_categories_email_filter {
+  email: EmailAddress!
+}
+
+type act_on_subscription_category_email {
+  id: String
+  acct_id: String
+  email: EmailAddress
+  name: String
+  description: String
+}
+
+type act_on_subscription_categories_email_result {
+  count: Int
+  docs: [act_on_subscription_category_email]
+}
+
+input act_on_subscription_categories_email_update_input {
+  email: EmailAddress!
+  category: [String]
+}

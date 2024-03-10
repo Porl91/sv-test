@@ -1,0 +1,1 @@
+serverCommand: ["yarn", "run", "start:dev"]

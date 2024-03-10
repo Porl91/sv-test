@@ -1,0 +1,15 @@
+{{ $name := "graphql" }}
+{{ $version := "v1" }}
+{{ $fullName := printf "%s-%s-%s" .Release.Name $name $version }}
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ $fullName }}
+spec:
+  selector:
+    name: {{ $fullName }}
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80

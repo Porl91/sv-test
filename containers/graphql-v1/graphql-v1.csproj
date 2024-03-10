@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<RootNamespace>graphql_v1</RootNamespace>
+		<Nullable>disable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="GraphQL" Version="7.8.0" />
+		<PackageReference Include="GraphQL.SystemTextJson" Version="7.8.0" />
+	</ItemGroup>
+
+</Project>

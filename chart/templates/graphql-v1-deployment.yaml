@@ -1,0 +1,44 @@
+{{ $name := "graphql" }}
+{{ $version := "v1" }}
+{{ $fullName := printf "%s-%s-%s" .Release.Name $name $version }}
+{{ $image := printf "%s%s-%s-%s:%s" .Values.sv.dockerRegistry .Chart.Name $name $version .Values.sv.tag }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: {{ $fullName }}
+  template:
+    metadata:
+      annotations:
+        checksum: "{{ index .Values.sv.ids $image }}"
+        sv-test-command: "yarn test"
+      labels:
+        name: {{ $fullName }}
+    spec:
+      containers:
+        - name: {{ $name }}-{{ $version }}
+          image: {{ $image }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          # gives the pod 2 minutes to be ready
+          readinessProbe:
+            httpGet:
+              port: 80
+              path: /status/
+            timeoutSeconds: 1
+            periodSeconds: 5
+            failureThreshold: 24
+          # gives the pod 1 minute to stop
+          lifecycle:
+            preStop:
+              exec:
+                command : ["/bin/sh" , "-c", "sleep 60;"]
+          resources:
+            requests:
+              cpu: 0
+          ports:
+            - containerPort: 80
